@@ -21,6 +21,7 @@ jobs:
       - name: Aplicar labels
         uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const labels = process.env.LABELS
             if (labels) {
@@ -31,5 +32,36 @@ jobs:
                 labels: [labels]
               })
             }
+        env:
+          LABELS: ${{ steps.label.outputs.labels }}
+
+      - name: Auto atribuir issue
+        if: github.event.action == 'opened'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.addAssignees({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              assignees: [context.payload.sender.login]
+            })
+
+      - name: Comentário automático
+        if: github.event.action == 'opened'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issueType = process.env.LABELS === 'bug' ? 'bug' :
+                             process.env.LABELS === 'enhancement' ? 'funcionalidade' : 'questão'
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `Obrigado por reportar ${issueType === 'bug' ? 'este' : 'esta'} ${issueType}! Vamos analisar o mais breve possível.`
+            })
         env:
           LABELS: ${{ steps.label.outputs.labels }}
