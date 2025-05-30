@@ -2,14 +2,14 @@ class ContactsController < ApplicationController
   before_action :set_contact, only: [ :show, :update, :destroy ]
 
   def index
-    @contacts = Contact.all
+    @contacts = current_user.contacts
   end
 
   def show
   end
 
   def create
-    @contact = Contact.new(contact_params)
+    @contact = current_user.contacts.build(contact_params)
     if @contact.save
       render :show, status: :created
     else
@@ -40,7 +40,7 @@ class ContactsController < ApplicationController
   end
 
   def set_contact
-    @contact = Contact.find(params[:id])
+    @contact = current_user.contacts.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     render json: { error: "Contact not found" }, status: :not_found
   end
