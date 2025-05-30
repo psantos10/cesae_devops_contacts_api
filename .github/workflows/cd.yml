@@ -31,4 +31,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: psantos11/cesae-contacts-api:latest
+          tags: psantos11/cesae-contacts-api:latest,psantos11/cesae-contacts-api:${{ github.sha }}
