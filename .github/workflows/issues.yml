@@ -8,11 +8,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Issue aberta - Atribuição de label
+        id: label
         run: |
-          if (contains(github.event.issue.body, "bug")) {
-            echo "::add-labels: bug"
-          } else if (contains(github.event.issue.body, "funcionalidade")) {
-            echo "::add-labels: enhancement"
-          } else {
-            echo "::add-labels: question"
-          }
+          if [[ "${{ github.event.issue.body }}" == *"bug"* ]]; then
+            echo "labels=bug" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event.issue.body }}" == *"funcionalidade"* ]]; then
+            echo "labels=enhancement" >> $GITHUB_OUTPUT
+          else
+            echo "labels=question" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Aplicar labels
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const labels = process.env.LABELS
+            if (labels) {
+              github.rest.issues.addLabels({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: [labels]
+              })
+            }
+        env:
+          LABELS: ${{ steps.label.outputs.labels }}
