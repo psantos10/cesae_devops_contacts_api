@@ -18,11 +18,15 @@ default: &default
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: <%= ENV.fetch("CONTACTS_API_DATABASE_HOST", "localhost") %>
+  port: <%= ENV.fetch("CONTACTS_API_DATABASE_PORT", 5432) %>
+  username: <%= ENV.fetch("CONTACTS_API_DATABASE_USERNAME", "postgres") %>
+  password: <%= ENV.fetch("CONTACTS_API_DATABASE_PASSWORD", "postgres") %>
 
 
 development:
   <<: *default
-  database: contacts_api_development
+  database: contacts_api_dev
 
   # The specified database role being used to connect to PostgreSQL.
   # To create additional roles in PostgreSQL see `$ createuser --help`.
@@ -82,8 +86,6 @@ production:
   primary: &primary_production
     <<: *default
     database: contacts_api_production
-    username: contacts_api
-    password: <%= ENV["CONTACTS_API_DATABASE_PASSWORD"] %>
   cache:
     <<: *primary_production
     database: contacts_api_production_cache
