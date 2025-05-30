@@ -137,6 +137,7 @@ GEM
       json (~> 2.0)
       mime-types (~> 3.4)
       rack (~> 3.1)
+    ffaker (2.24.0)
     fugit (1.11.1)
       et-orbi (~> 1, >= 1.2.11)
       raabro (~> 1.4)
@@ -149,6 +150,7 @@ GEM
       pp (>= 0.6.0)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
+    jb (0.8.2)
     json (2.12.2)
     kamal (2.6.1)
       activesupport (>= 7.0)
@@ -381,6 +383,8 @@ DEPENDENCIES
   brakeman
   debug
   factory_bot_rails
+  ffaker
+  jb
   kamal
   pg (~> 1.1)
   puma (>= 5.0)
