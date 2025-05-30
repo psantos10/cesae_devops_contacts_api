@@ -60,6 +60,11 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
+      - name: Prepare Database
+        env:
+          RAILS_ENV: test
+        run: bin/rails db:test:prepare
+
       - name: Run tests
         env:
           RAILS_ENV: test
