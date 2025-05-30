@@ -7,6 +7,12 @@ Rails.application.routes.draw do
 
   resources :contacts, only: [ :index, :show, :create, :update, :destroy ], defaults: { format: :json }
 
+  # Autenticação
+  post "/signup", to: "users#create"
+  post "/login", to: "users#login"
+  delete "/logout", to: "users#logout"
+  get "/me", to: "users#me"
+
   # Defines the root path route ("/")
   # root "posts#index"
 end
