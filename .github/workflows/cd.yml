@@ -32,3 +32,19 @@ jobs:
           context: .
           push: true
           tags: psantos11/cesae-contacts-api:latest,psantos11/cesae-contacts-api:${{ github.sha }}
+
+      - name: Deploy to AWS (EKS)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Setup kubectl
+        run: |
+          aws eks update-kubeconfig --region ${{ vars.AWS_REGION }} --name ${{ vars.EKS_CLUSTER_NAME }}
+
+      - name: Deploy to EKS
+        run: |
+          kubectl apply -f k8s/service.yaml -n default
+          kubectl apply -f k8s/deployment.yaml -n default
