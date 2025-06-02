@@ -29,8 +29,12 @@ spec:
               value: "production"
             - name: RAILS_MASTER_KEY
               value: "e61a56f29f543fe019649776ca51b5be"
+            - name: CONTACTS_API_DATABASE_HOST
+              value: "db01-cesae-2025.c5mqaewik5nn.eu-west-1.rds.amazonaws.com"
+            - name: CONTACTS_API_DATABASE_PASSWORD
+              value: "4z1waiwy6ZRYGA68c!kR$Y7r8mpF"
             - name: DATABASE_URL
-              value: "postgres://postgres:4z1waiwy6ZRYGA68c!kR$Y7r8mpF@db-cesae-2025.c5mqaewik5nn.eu-west-1.rds.amazonaws.com/contacts_api_production"
+              value: "postgres://postgres:4z1waiwy6ZRYGA68c!kR$Y7r8mpF@db01-cesae-2025.c5mqaewik5nn.eu-west-1.rds.amazonaws.com/contacts_api_production"
           resources:
             requests:
               cpu: "100m"
