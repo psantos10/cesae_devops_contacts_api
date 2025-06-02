@@ -1,24 +1,25 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Nome do Cluster: cesae-devops-2025-cluster-k8s
+Região: eu-west-1
 
-Things you may want to cover:
+1º Passo: Criação do Cluster
 
-* Ruby version
+eksctl create cluster --name cesae-devops-2025-cluster-k8s --version 1.32 --region eu-west-1 --nodegroup-name standard-workers --node-type t3.micro --nodes 2 --nodes-min 1 --nodes-max 3 --managed
 
-* System dependencies
+2º Configurar o acesso para o kubectl
 
-* Configuration
+aws eks update-kubeconfig --region eu-west-1 --name cesae-devops-2025-cluster-k8s
 
-* Database creation
+3º Vericar a conexão com o cluster
 
-* Database initialization
+kubectl get nodes
 
-* How to run the test suite
+4º Instalação do Dashboard (Opcional):
 
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+```bash
+# Add kubernetes-dashboard repository
+helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+# Deploy a Helm Release named "kubernetes-dashboard" using the kubernetes-dashboard chart
+helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard
+```

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cesae-contacts-api-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      project: cesae-contacts-api
+  minReadySeconds: 20
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        project: cesae-contacts-api
+    spec:
+      containers:
+        - name: cesae-contacts-api-container
+          image: psantos11/cesae-contacts-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+            - name: RAILS_ENV
+              value: "production"
+            - name: RAILS_MASTER_KEY
+              value: "e61a56f29f543fe019649776ca51b5be"
+            - name: DATABASE_URL
+              value: "postgres://postgres:4z1waiwy6ZRYGA68c!kR$Y7r8mpF@db-cesae-2025.c5mqaewik5nn.eu-west-1.rds.amazonaws.com/contacts_api_production"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
