@@ -34,7 +34,7 @@ jobs:
           tags: psantos11/cesae-contacts-api:latest,psantos11/cesae-contacts-api:${{ github.sha }}
 
       - name: Deploy to AWS (EKS)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
