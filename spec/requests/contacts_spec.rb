@@ -1,7 +1,14 @@
 require "rails_helper"
 
 RSpec.describe "Contacts", type: :request do
-  let(:headers) { { "Accept" => "application/json", "Content-Type" => "application/json" } }
+  let(:user) { create(:user) }
+  let(:headers) do
+    {
+      "Accept" => "application/json",
+      "Content-Type" => "application/json",
+      "Authorization" => "Bearer #{user.auth_token}"
+    }
+  end
 
   describe "GET /contacts" do
     context "when there are no contacts" do
@@ -14,7 +21,7 @@ RSpec.describe "Contacts", type: :request do
     end
 
     context "when there are contacts" do
-      before(:each) { create_list(:contact, 3) }
+      before(:each) { create_list(:contact, 3, user: user) }
 
       it "returns a list of contacts" do
         get "/contacts", headers: headers
@@ -23,6 +30,14 @@ RSpec.describe "Contacts", type: :request do
         contacts = JSON.parse(response.body)
         expect(contacts.size).to eq(3)
         expect(contacts.first).to include("id", "name", "email", "phone")
+      end
+    end
+
+    context "when not authenticated" do
+      it "returns unauthorized" do
+        get "/contacts", headers: { "Accept" => "application/json" }
+
+        expect(response).to have_http_status(:unauthorized)
       end
     end
   end
@@ -46,6 +61,7 @@ RSpec.describe "Contacts", type: :request do
         contact = JSON.parse(response.body)
         expect(contact).to include("id", "name", "email", "phone")
         expect(contact["name"]).to eq("John Doe")
+        expect(Contact.last.user).to eq(user)
       end
     end
 
@@ -66,11 +82,19 @@ RSpec.describe "Contacts", type: :request do
         expect(parsed_response["errors"]).to include("Name can't be blank", "Email must be a valid email address", "Phone must be a valid phone number")
       end
     end
+
+    context "when not authenticated" do
+      it "returns unauthorized" do
+        post "/contacts", params: { name: "Test" }.to_json, headers: { "Content-Type" => "application/json" }
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
   end
 
   describe "GET /contacts/:id" do
     context "with existing contact" do
-      let(:contact) { create(:contact) }
+      let(:contact) { create(:contact, user: user) }
 
       it "returns the contact" do
         get "/contacts/#{contact.id}", headers: headers
@@ -90,10 +114,22 @@ RSpec.describe "Contacts", type: :request do
         expect(JSON.parse(response.body)).to include("error" => "Contact not found")
       end
     end
+
+    context "with contact belonging to another user" do
+      let(:other_user) { create(:user) }
+      let(:contact) { create(:contact, user: other_user) }
+
+      it "returns a not found error" do
+        get "/contacts/#{contact.id}", headers: headers
+
+        expect(response).to have_http_status(:not_found)
+        expect(JSON.parse(response.body)).to include("error" => "Contact not found")
+      end
+    end
   end
 
   describe "PUT /contacts/:id" do
-    let(:contact) { create(:contact) }
+    let(:contact) { create(:contact, user: user) }
 
     context "with valid parameters" do
       let(:valid_attributes) do
@@ -141,10 +177,22 @@ RSpec.describe "Contacts", type: :request do
         expect(JSON.parse(response.body)).to include("error" => "Contact not found")
       end
     end
+
+    context "with contact belonging to another user" do
+      let(:other_user) { create(:user) }
+      let(:other_contact) { create(:contact, user: other_user) }
+
+      it "returns a not found error" do
+        put "/contacts/#{other_contact.id}", params: { name: "Test" }.to_json, headers: headers
+
+        expect(response).to have_http_status(:not_found)
+        expect(JSON.parse(response.body)).to include("error" => "Contact not found")
+      end
+    end
   end
 
   describe "DELETE /contacts/:id" do
-    let(:contact) { create(:contact) }
+    let(:contact) { create(:contact, user: user) }
 
     context "with existing contact" do
       it "deletes the contact" do
@@ -158,6 +206,18 @@ RSpec.describe "Contacts", type: :request do
     context "with non-existing contact" do
       it "returns a not found error" do
         delete "/contacts/999999", headers: headers
+
+        expect(response).to have_http_status(:not_found)
+        expect(JSON.parse(response.body)).to include("error" => "Contact not found")
+      end
+    end
+
+    context "with contact belonging to another user" do
+      let(:other_user) { create(:user) }
+      let(:other_contact) { create(:contact, user: other_user) }
+
+      it "returns a not found error" do
+        delete "/contacts/#{other_contact.id}", headers: headers
 
         expect(response).to have_http_status(:not_found)
         expect(JSON.parse(response.body)).to include("error" => "Contact not found")
